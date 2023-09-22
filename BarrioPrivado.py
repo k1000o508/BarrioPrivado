@@ -1,9 +1,53 @@
-from datetime import date
-from datetime import datetime
-import random
+#Maneja las pausas de tiempo
+import time as t
+
+#Maneja fechas y horas 
+from datetime import *
+
+#Maneja la BDD
 from sqlite3 import *
 
+#Limpiar la consola
+import os as os
+
+#Maneja las pausas de tiempo
+import time as t
+
+#libreria para crear barra de carga (puramente estetico)
+import tqdm
+
+#Salida de hiperTexto con arte ASCII code
+import pyfiglet
+
+
+#_____________________________________________________________________Estilo_____________________________________________________________________
+
+#Crear tablas agradables visualmente 
+import tabulate 
+
+#Estilos disponibles
+# * **simple:** Este es el estilo de tabla por defecto. Las celdas están alineadas a la izquierda y no hay líneas de cuadrícula.
+# * **grid:** Este estilo de tabla añade líneas de cuadrícula a la tabla.
+# * **fancy_grid:** Este estilo de tabla añade líneas de cuadrícula y un borde a la tabla.
+# * **pipe:** Este estilo de tabla utiliza el carácter de tubería (|) para separar las celdas.
+# * **orgtbl:** Este estilo de tabla utiliza la sintaxis de Org-mode para crear tablas.
+# * **rst:** Este estilo de tabla utiliza la sintaxis de reStructuredText para crear tablas.
+# * **mediawiki:** Este estilo de tabla utiliza la sintaxis de MediaWiki para crear tablas.
+# * **html:** Este estilo de tabla utiliza la sintaxis HTML para crear tablas.
+# * **latex:** Este estilo de tabla utiliza la sintaxis LaTeX para crear tablas.
+
+#Tipo de estilo de los outputs (Se puede cambiar por el estilo deseado)
+fontStyle = "fancy_grid"
+
+#_____________________________________________________________________Estilo_____________________________________________________________________
+
+
+
+#_____________________________________________________________________BD_____________________________________________________________________
+
+#Coneccion a la BD
 conn = connect("BarrioPrivado.db")
+
 
 c = conn.cursor()
 c.execute("""CREATE TABLE IF NOT EXISTS LOTES(ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,95 +83,230 @@ c.execute("""CREATE TABLE IF NOT EXISTS PRECIOS(ID INTEGER PRIMARY KEY AUTOINCRE
 		                                        valor_metro NUMBER(5) NOT NULL)""")
 
 c.close()
-
-
-
-#Cargar listas 
+#_____________________________________________________________________BD_____________________________________________________________________
 
 
 
 #Descargar listas 
+LOTES = {"lot": "Number",
+    "man": "Number",
+    "m_fond": "Number",
+    "m_fren": "Number",
+    "luz_p": "Boolean",
+    "agua_p": "Boolean",
+    "asfalto": "Boolean",
+    "esquina": "Boolean",}
 
 
+PROPIETARIOS = {"apellido": "Text",
+    "nombre": "Text",
+    "lot_p": "Number",
+    "man_p": "Number",
+    "fecha_Compra": "Date",
+    "supcubm2": "Number",
+    "hab": "Number",
+    "cons_luz": "Number",
+    "cons_agua": "Number",
+    "cons_gas": "Number",}
 
-#Variables auxiliares
+PRECIOS = {"luz_m": "Number",
+    "agua_m": "Number",
+    "gas_m": "Number",
+    "cochera_m": "Number",
+    "seguridad_cp": "Number",
+    "luz_cp": "Number",
+    "agua_cp": "Number",
+    "valor_metro": "Number"}
 
-x = " "
-y = " "
 
-#----------------------
+DictDiccitionaries = {"LOTES":LOTES,
+                       "PROPIETARIOS":PROPIETARIOS,
+                       "PRECIOS":PRECIOS}
 
-M = 4
-LM = 6
 
-#Variables del Lote
+# #Variables auxiliares
 
-lot =  [] 
-manz = []
-m_fren = []
-m_fond=  []
-luz_p=     []
-agua_p =   []
-asfalto =  []
-esquina =  []
+# x = " "
+# y = " "
 
-#Variables del propietario 
+# #----------------------
 
-ap = []
-nom = []
-lot_p = []
-manz_p = []
-fc = []
-supcubm2 = []
-habit = []
-cantvehi = []
-cons_luz = []
-cons_agua = []
-cons_gas = []
+# M = 4
+# LM = 6
 
-#Variables para el menu 
+# #Variables del Lote
+
+# lot =  [] 
+# manz = []
+# m_fren = []
+# m_fond=  []
+# luz_p=     []
+# agua_p =   []
+# asfalto =  []
+# esquina =  []
+
+# #Variables del propietario 
+
+# ap = []
+# nom = []
+# lot_p = []
+# manz_p = []
+# fc = []
+# supcubm2 = []
+# habit = []
+# cantvehi = []
+# cons_luz = []
+# cons_agua = []
+# cons_gas = []
+
+# #Variables para el menu 
 
 opc_manz = 0 
 opc_lot = 0
 opc_ap = ""
 opc_c = 0
 
-opc_m = 0  #Opciones Menu 
-opc_m_c = 0 # Opciones Consultas 
-opc_m_c_p = 0 # Opciones Consulta del propietario 
-opc_m_c_l = 0 # Opciones Consultas del local 
-opc_liq = 0 #Opciones de liquidacion
+def ResetMenu():
+	global opc_m , opc_m_c, opc_m_c_p,opc_m_c_l,opc_liq
+	opc_m = 0  #Opciones Menu 
+	opc_m_c = 0 # Opciones Consultas 
+	opc_m_c_p = 0 # Opciones Consulta del propietario 
+	opc_m_c_l = 0 # Opciones Consultas del local 
+	opc_liq = 0 #Opciones de liquidacion
 #Variables de precios
 
-#Common pay(Cost) as cp
-#Pay(Cost) as m
+# #Common pay(Cost) as cp
+# #Pay(Cost) as m
 
-luz_m = 60
-luz_mls = []
-Agua_m = 30
-Agua_mls = []
-Gas_m = 45
-Gas_mls = []
-Cochera_m = 10000
-Cochera_mls = []
+# luz_m = 60
+# luz_mls = []
+# Agua_m = 30
+# Agua_mls = []
+# Gas_m = 45
+# Gas_mls = []
+# Cochera_m = 10000
+# Cochera_mls = []
 
-#Common Pay
-Seg_cp = 30000
-Seg_cpls = []
+# #Common Pay
+# Seg_cp = 30000
+# Seg_cpls = []
 
-Luz_cp = 80000
-Luz_cpls = []
+# Luz_cp = 80000
+# Luz_cpls = []
 
-#X metro de frente 
-Agua_cp = 40 
-Agua_cpls = []
-Asf_cp = 70 
-Asf_cpls = []
+# #X metro de frente 
+# Agua_cp = 40 
+# Agua_cpls = []
+# Asf_cp = 70 
+# Asf_cpls = []
 
-#X metro cuadrado
-metros2 = []
-Valorter_m = 60000
-Valorter_mls = []
+# #X metro cuadrado
+# metros2 = []
+# Valorter_m = 60000
+# Valorter_mls = []
+
+def val_range(maxim,minin):
+    while True:
+        x = str(input(" ▶ "))
+
+        print(x)
+        print(x <= str(maxim) and x >= str(minin))
+
+        if int(x) <= int(maxim) and int(x) >= int(minin):
+            return str(x)
+        else:
+            print("Su valor tiene que estar entre",minin ,"y",maxim ,sep = " ")
+
+
+def string(CadenaTexto):
+
+    while True:
+        Bucle = False
+
+        #Navego por cada caracter del texto buscando un numero para validar una cadena pura
+        for caracteres in CadenaTexto:
+            if caracteres.isdigit():
+                Bucle = True
+        #Si el bucle es falso significa que nunca encontro un digito en la cadena de texto
+        if Bucle == False:
+            return CadenaTexto
+
+        #Si el bucle es verdadero (Else ya que solo se pueden tomar 2 valores en un booleano) se vuelve a pedir una cadena de texto
+        else:
+            CadenaTexto = input('Tiene que ingresar un texto sin numeros  > ')
+
+
+def ValidacionFecha():
+       
+    while True:
+        # try:
+            print("Ingresa una fecha en el formato MM(mes): ")
+            #Arreglar val_range 
+            fechaM = val_range(12,1)
+            time.strptime(str(fechaM),'%m')
+            print("Fecha válida")
+            break
+        # except ValueError:
+            # print("Fecha inválida")
+
+    while True:
+        try:
+            fechaD = input("Ingresa una fecha en el formato DD(dia): ")
+            time.strptime(str(fechaD),'%d')
+            print("Fecha válida")
+            break
+        except ValueError:
+            print("Fecha inválida")
+    while True:
+        try:
+            #fecha = input("Ingresa una fecha en el formato YYYY-MM-DD: ")
+            print("Ingresa una fecha en el formato YYYY(año): ")
+            fechaY = val_range(2022,1900)
+            #datetime.strptime(fecha, '%Y-%m-%d')
+            time.strptime(str(fechaY), '%Y')
+            print("Fecha válida")
+            break
+        except ValueError:
+            print("Fecha inválida")
+
+    fecha = str(fechaY) + "-" + str(fechaM) + "-" + str(fechaD)
+    # RevfechaY = str(reversed(fechaY))
+    # RevfechaM = str(reversed(fechaM))
+    # RevfechaD = str(reversed(fechaD))
+    # fecha_val = "-".join([RevfechaY,RevfechaM,RevfechaD])
+    # fecha_hoy = str(reversed(str(datetime.strptime(fechaY, '%Y'))))+ str(reversed(str(datetime.strptime(fechaM,'%m')))) + str(reversed(str(datetime.strptime(fechaD,'%d'))))
+    # print(fecha_val +"\n" + fecha_hoy)
+
+    print(fecha)
+    return fecha
+
+
+
+def numeric(Numeric_string,Long_of_String,Max_number):
+    c = 0
+    #El while true se encarga de forzar un valor apto para el codigo
+    while True:
+
+        #Esto mantiene la solides del codigo verifica que Numeric_string sea tipo int para que isdigit acepte la condicion
+        if Numeric_string.isdigit() and len(Numeric_string) <= 3 and int(Numeric_string) >= 0 and int(Numeric_string) <= int(Max_number):
+            print(Numeric_string.isdigit())
+            return Numeric_string #El return frena el while True
+        else:
+            if c == 0:
+                Numeric_string = input("Ingrese una opcion valida > ")
+
+            if c == 1 and len(Numeric_string) >= 2:
+                Numeric_string = input("Ingrese una opcion valida de {} cifras > ".format(Long_of_String))
+
+            if c == 1:
+                Numeric_string = input("Ingrese una opcion valida  entre {} y {} > ".format(1,Max_number))
+
+            if c > 3:
+                Numeric_string = input("Ingrese una opcion valida de {} cifras entre {} y {} > ".format(Long_of_String,1,Max_number))
+
+
+        #Manera de ayudar al usuario , mientras mas se equivoca mas va a ayudarlo para poder cargar los datos necesarios
+        c += 1
 
 
 def numval(x):
@@ -144,18 +323,18 @@ def numval(x):
 			it = False
 
 #el val_range funciona unicamente con variables tipo int
+
 def val_range(maxim,minin):
+    while True:
+        x = str(input(" ▶ "))
 
-	while True:
-		x = int(input(" ▶ "))
+        print(x)
+        print(x <= str(maxim) and x >= str(minin))
 
-		if x >= maxim and x <= minin:
-		
-			return x
-			break
-
-		else:
-			print("Su valor tiene que estar entre",minin ,"y",maxim ,sep = " ")
+        if 0 <= int(maxim) and int(x) >= int(minin):
+            return int(x)
+        else:
+            print("Su valor tiene que estar entre",minin ,"y",maxim ,sep = " ")
 
 
 	# a = 19
@@ -193,7 +372,6 @@ def val_strlist(x):
 
 		if x.lower() in ap:
 			return x
-			break
 			 
 		else:
 			print("El apellido que ingreso no esta cargado\n Los nombres cargados son: \n ", ap, "\n Reingrese el apellido")
@@ -319,7 +497,7 @@ def randomer_fc(c):
 def randomer_nomap(c):
 	
 	for i in range(c):
-		apes  = ["lopez","martines" ,"abalos" , "ramos", "faustino"]
+		apes  = ["lopez","martinez" ,"abalos" , "ramos", "faustino"]
 		nomes = ["Valentina","juan"  ,"Mariano" ,"Lucas" ,"Tadeo" ]
 		
 		ind_a= random.randint(1,len(apes)-1)
@@ -346,62 +524,33 @@ def randomer_bol(principal,c):
 			principal.append("N")
 		
 
-def reingresar_lot(x):
-	
-	# La funcion le pregunta al usuario,
-	# si esta seguro de lo que ingreso.
-	
-	print("Esta seguro de lo que ingreso?")
-	tmp = sn(x)
-	if tmp == "NO" or tmp == "N":
-		#Advertencia 
-		print("""Atencion si no esta seguro de los ingresos,
-		 se borraran todos los datos recien ingresado. 
-		 Los tendra que ingresar todo de nuevo. 
+# def reingresar_prop(y):
 
-		 ¿Quiere continuar?""") 
-		tmp_2 = sn(x)
-		if tmp_2 == "SI" or tmp_2 == "S":
-			lot.pop(-1) 
-			manz.pop(-1) 
-			m_fren.pop(-1) 
-			m_fond.pop(-1) 
-			luz_p.pop(-1) 
-			agua_p.pop(-1) 
-			asfalto.pop(-1) 
-			esquina.pop(-1) 
-			print("[+] Ultimos datos eliminados\n")
+# 	# La funcion le pregunta al usuario,
+# 	# si esta seguro de lo que ingreso.
 
-	else:
-				print("Ingrese el valor $$")
+# 	print("Esta seguro de lo que ingreso?")
+# 	tmp = sn(x)
+# 	if tmp == "NO" or tmp == "N":
+# 		#Advertencia 
+# 		print("""Atencion si no esta seguro de los ingresos,
+# 		 se borraran todos los datos recien ingresado. 
+# 		 Los tendra que ingresar todo de nuevo. 
 
-def reingresar_prop(y):
-
-	# La funcion le pregunta al usuario,
-	# si esta seguro de lo que ingreso.
-
-	print("Esta seguro de lo que ingreso?")
-	tmp = sn(x)
-	if tmp == "NO" or tmp == "N":
-		#Advertencia 
-		print("""Atencion si no esta seguro de los ingresos,
-		 se borraran todos los datos recien ingresado. 
-		 Los tendra que ingresar todo de nuevo. 
-
-		 ¿Quiere continuar?""") 
-		tmp_2 = sn(x)
-		if tmp_2 == "SI" or tmp_2 == "S":
-			apnom.pop(-1) 
-			lot_p.pop(-1) 
-			manz_p.pop(-1) 
-			fc.pop(-1) 
-			supcubm2.pop(-1) 
-			habit.pop(-1) 
-			cantvehi.pop(-1) 
-			cons_luz.pop(-1) 
-			cons_agua.pop(-1) 
-			cons_gas.pop(-1) 
-			print("[+] Ultimos datos eliminados\n")
+# 		 ¿Quiere continuar?""") 
+# 		tmp_2 = sn(x)
+# 		if tmp_2 == "SI" or tmp_2 == "S":
+# 			apnom.pop(-1) 
+# 			lot_p.pop(-1) 
+# 			manz_p.pop(-1) 
+# 			fc.pop(-1) 
+# 			supcubm2.pop(-1) 
+# 			habit.pop(-1) 
+# 			cantvehi.pop(-1) 
+# 			cons_luz.pop(-1) 
+# 			cons_agua.pop(-1) 
+# 			cons_gas.pop(-1) 
+# 			print("[+] Ultimos datos eliminados\n")
 
 def var_mod(x):
 
@@ -445,27 +594,169 @@ def var_mod(x):
 	#Modificador de variables
 #La maquina crea datos de propietarios al azar 
 
+#_____________________________________________________________________CLASES_____________________________________________________________________
+#_____________________________________________________________________CLASES_____________________________________________________________________
+#_____________________________________________________________________CLASES_____________________________________________________________________
+class ReadState():
+
+    def __init__(self,table):
+        self.table = table
+
+    def ReadAll(self):
+        c = conector.cursor()
+        c.execute("SELECT * FROM " + self.table + "")
+        rows = c.fetchall()
+
+        #Coincidencias en el diccionario para poder identicar los valores
+        TemplateVerification = {}
+
+        for i in DictDiccitionaries:
+            if i == self.table:
+                TemplateVerification = DictDiccitionaries[i]
+
+        #Tabulate formate table 
+        tabu = tabulate.tabulate(rows,headers=TemplateVerification.keys(),tablefmt=fontStyle,numalign="center",stralign="center")
+        print(tabu)
+
+    def ReadColumn(self,camp):
+        self.camp = camp 
+        c = conn.cursor()
+        c.execute("SELECT * FROM " + self.table + "")
+        rows = c.fetchall()
+
+        #Coincidencias en el diccionario para poder identicar los valores
+        TemplateVerification = {}
+
+        for i in DictDiccitionaries:
+            if i == self.table:
+                TemplateVerification = DictDiccitionaries[i]
+
+        print(len(rows))
+
+        IdOption = str(input("Registro ▶️ : "))
+
+        #Arreglar Error del fetchall()
+        c = conn.cursor()
+        c.execute("SELECT * FROM " + self.table + " WHERE "+ self.camp +" = '"+ IdOption +"'")
+        rows = c.fetchall()
+        tabu = tabulate.tabulate(rows,headers=TemplateVerification.keys(),tablefmt=fontStyle,numalign="center",stralign="center")
+        print(tabu)
+
+
+class ChargeState():
+    def __init__(self,table):
+        global nombres
+        self.table = table
+
+    def InputData(self):
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM pragma_table_info('"+ self.table +"')")
+        nombres = cursor.fetchall()
+        datos = []
+        #Coincidencias en el diccionario para poder identicar los valores
+        TemplateVerification = {}
+
+        for i in DictDiccitionaries:
+            if i == self.table:
+                TemplateVerification = DictDiccitionaries[i]
+        # if self.table in DictDiccitionaries:
+
+        for i in nombres:
+
+
+            if "ID" == i[0].upper():
+                pass
+            else:
+                if TemplateVerification[i[0]] == "Number":
+                    datos.append(numeric(input("Ingrese el campo " + i[0] + ' > '),2,70))
+                
+                elif TemplateVerification[i[0]] == "Date":
+                    print("Ingrese el campo " + i[0])
+                    datos.append(ValidacionFecha())
+                
+                elif TemplateVerification[i[0]] == "Text":
+                    datos.append(string(input("Ingrese el campo " + i[0] + ' > ')))
+
+                elif TemplateVerification[i[0]] == "Boolean":
+                    datos.append(numeric(input("Ingrese el campo (0_No / 1_Si) " + i[0] + ' > '),2,10))
+                else:
+                    print("erorr > ",i )
+				
+        cursor = conn.cursor()
+
+        # Adaptacion para sqlite (?,?,?,?,?)
+
+        # ATENCION: NO EJECUTAR SIN VALIDAR LOS DATOS ANTERIORMENTE
+
+        print(len(datos))
+
+        print(datos)
+
+        ValuesInputs = "?,"*((len(datos)))
+
+        # Sacamos la coma de mas (?,?,?,?,?,) <<<
+        ValuesInputs = ValuesInputs[:-1]
+
+        print("Value Inputs :",ValuesInputs)
+
+        cursor.executemany("INSERT INTO "+ self.table +" VALUES (null," + ValuesInputs + ")",[datos,])
+        conn.commit()
+
+
+#_____________________________________________________________________CLASES_____________________________________________________________________
+#_____________________________________________________________________CLASES_____________________________________________________________________
+#_____________________________________________________________________CLASES_____________________________________________________________________
+
+
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+
+def carga():
+    # Create an instance of the tqdm.tqdm class.
+    pbar = tqdm.tqdm(range(0,100,5))
+
+    # Iterate over the list of elements.
+    for i in pbar:
+        
+        #limpiamos la terminal
+        os.system('cls')
+        
+        # Actualizacion de la barra de progreso.
+        pbar.update()
+
+        # Escribimos el estado del bucle
+        pbar.write(f"{i}")
+
+        t.sleep(0.15)
+
+    os.system('cls')
+
+    # Close the progress bar.
+    pbar.close()
+
+    #Nombre del programa con la ayuda de pyfiglet
+    text = pyfiglet.print_figlet(text="Barrio Privado",
+                                colors="WHITE",
+                                font="roman")
+
+    t.sleep(2)
+
+    os.system("cls")
+
+carga()
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+#_____________________________________________________________________Presentacion_____________________________________________________________________
+
+
+#_____________________________________________________________________Inicio_Del_Codigo_____________________________________________________________________
+#_____________________________________________________________________Inicio_Del_Codigo_____________________________________________________________________
+#_____________________________________________________________________Inicio_Del_Codigo_____________________________________________________________________
+
+
 c = 5
 
-randomer(lot,1,4,c)
-randomer(manz,1,4,c)
-randomer(m_fren,30,70,c)
-randomer(m_fond,30,50,c)
-randomer(supcubm2,0,90,c)
-randomer(habit,0,10,c)
-randomer(cantvehi,0,3,c)
-randomer(cons_luz,0,500,c)
-randomer(cons_agua,0,500,c)
-randomer(cons_gas,0,500,c)
-randomer_bol(agua_p,c)
-randomer_bol(luz_p,c)
-randomer_bol(asfalto,c)
-randomer_bol(esquina,c)
-#Arreglar
-randomer_fc(c)
-randomer_nomap(c)
-randomer(lot_p,1,4,c)
-randomer(manz_p,1,4,c)
 
 #Banderas
 ban = False
@@ -473,285 +764,135 @@ ban = False
 
 print("Fecha de hoy :",date.today())
 while True:
-	
-	print("-"*60,"""Menu principal:
-		1_Altas de lotes 
-		2_Altas de propietarios
-		3_Consultas
-		4_Act.tabla de consumos
-		5_Calculo de consumo 
-		6_Emitir liquidacion 
-		0_Fin de tarea""","-"*60,sep = "\n")
+	ResetMenu()
+	os.system('cls')
+	table = [
+      ["Altas de lotes","Funcionando 100%"],
+      ["Altas de propietarios","Funcionando 100%"],
+      ["Consultas","Funcionando 50%"],
+      ["Act.tabla de consumos","Funcionando 100%"],
+      ["Calculo de consumo","Funcionando 0%"],
+      ["Emitir liquidacion","Funcionando 0%"],
+      ["Fin de tarea","Funcionando 100%"],]
+	print(tabulate.tabulate(table, headers=["Option", "Description","Estado.developInfo"],numalign="center", tablefmt=fontStyle, showindex=True))
 
 	opc_m = numval(opc_m)
 
 	if opc_m <= 6 and opc_m >= 0:		
-
-		if opc_m == 0:
+		os.system('cls')
+		if opc_m == 6:
+			os.system('cls')
 			break
 		
 		#Lotes
-		elif opc_m == 1:
-			
-			#Validar que no se repita
-			print("Ingrese lote al que pertenece")
-			lot.append(numval(lot))
-			print(lot)
-			print("Ingrese la manzana a la que pertenece")
-			manz.append(numval(manz))
-			print(manz)
-			nrep2(lot,manz)
+		elif opc_m == 0:
+			os.system('cls')
+			Instance01 = ChargeState("LOTES")
+			Instance01.InputData()
 
-
-			print("Ingrese los metros de frente que posee")
-			m_fren.append(numval(m_fren))
-			print(m_fren)
-			print("Ingrese los metros de fondo que posee")
-			m_fond.append(numval(m_fond))
-			print("Ingrese metros cubiertos")
-			supcubm2.append(numval(supcubm2))
-			print(m_fond)
-			print("Ingrese si posee luz publica ")
-			luz_p.append(sn(luz_p))
-			print(luz_p)
-			print("Ingrese si posee agua publica ")
-			agua_p.append(sn(agua_p))
-			print(agua_p)
-			print("Ingrese si posee asfalto ")
-			asfalto.append(sn(asfalto))
-			print(asfalto)
-			print("Ingrese si posee una esquina")
-			esquina.append(sn(esquina))
-			print(esquina)
-
-			reingresar_lot(x)
+			# reingresar_lot(x)
 
 		#Propietarios
-		elif opc_m == 2:
-			#Arreglar
-			print("Ingrese nombre del propietario ")
-			nom.append(srtval(nom))
-			print(nom)
-			print("Ingrese apellido del propietario ")
-			ap.append(srtval(ap))
-			print(ap)
-			
-			#Validar que no se repita 
-			print("Ingrese lote al que pertenece")
-			lot_p.append(numval(lot_p))
-			print(lot_p)
-			print("Ingrese la manzana a la que pertenece")
-			manz.append(numval(manz_p))
-			print(manz_p)
+		elif opc_m == 1:
+			os.system('cls')
+			Instance01 = ChargeState("PROPIETARIOS")
+			Instance01.InputData()
 
-			print("Ingrese la fech de compra")
-			fc.append(fdecompra())
-			print(fc)
-			print("Ingrese la superficie cubierta total ")
-			supcubm2.append(numval(supcubm2))
-			print(supcubm2)
-			print("Ingrese los habitante del hogar ")
-			habit.append(numval(habit))
-			print(habit)
-			print("Ingrese los vehiculos que posee")
-			cantvehi.append(numval(cantvehi))
-			print(cantvehi)
-			print("Ingrese el consumo de luz")
-			cons_luz.append(numval(cons_luz))
-			print(cons_luz)
-			print("Ingrese el consumo de agua")
-			cons_agua.append(numval(cons_agua))
-			print(cons_agua)
-			print("Ingrese el consumo de gas")
-			cons_gas.append(numval(cons_gas))
-			print(cons_gas)
-
-			reingresar_prop(y)
+			# reingresar_prop(y)
 
 			
 		# #Consultas
 
-		#Arreglar no vuelve a entrar
-		elif opc_m == 3:
-			while opc_m_c != 3:
-				print("-"*60,"""Menu de consultas:
-					1_Lotes
-					2_Propietarios
-					3_Volver""","-"*60,sep = "\n")
-				
-				opc_m_c = val_range(1,3)
+		elif opc_m == 2:
+			ResetMenu()
+			os.system('cls')
+			while opc_m_c != 2:
+				os.system('cls')
+				table = [
+    				["Lotes"],
+    				["Propietarios"],
+    				["Volver"],]
+                
+				print(tabulate.tabulate(table, headers=["Option", "Description"],numalign="center", tablefmt=fontStyle, showindex=True))
+						
+				opc_m_c = val_range(2,0)
 
-				if opc_m_c == 1:
-					while opc_m_c_l != 3:
-						print("-"*60,"""Menu de consultas de lotes:
-					1_Por manzana
-					2_Por manzana y lote
-					3_Volver""","-"*60,sep = "\n")
+				if int(opc_m_c) == 0:
+					os.system('cls')
+					ResetMenu()
+					while opc_m_c_l != 2:
+						os.system('cls')
+						table = [
+      						["Por Manzana"],
+      						["Por Propietario"],
+      						["Volver"],]
+						print(tabulate.tabulate(table, headers=["Option", "Description"],numalign="center", tablefmt=fontStyle, showindex=True))
 
-						opc_m_c_l = val_range(1,3)
+						opc_m_c_l = val_range(2,0)
 
-						print("{} {} {} {} {} {} {} {}".format(manz
-																		,lot
-																		,m_fond
-																		,m_fren
-																		,agua_p
-																		,luz_p
-																		,asfalto
-																		,esquina))
-						if opc_m_c_l == 1:
+						if int(opc_m_c_l) == 0:
+							os.system('cls')
 							print("Ingrese la manzana que busca")
-							print("{} {} {} {} {} {} {} {}".format(manz
-																			,lot
-																			,m_fond
-																			,m_fren
-																			,agua_p
-																			,luz_p
-																			,asfalto
-																			,esquina))
-							opc_manz = val_range(1,LM)
+							Instance01 = ReadState("LOTES")
+							Instance01.ReadColumn("man")
+							t.sleep(10)
 
-							print("""Manzana | lote | Mts_fondo | Mts_Frente | Agua | Luz | Asfalto | Esquina """)
-							for i in range(len(lot)):
-								if manz[i] == opc_manz:
-									print("{}  {}  {}  {}  {}  {}  {}  {} ".format(opc_manz
-																								,lot[i]
-																								,m_fond[i]
-																								,m_fren[i]
-																								,agua_p[i]
-																								,luz_p[i]
-																								,asfalto[i]
-																								,esquina[i]))
 
-						elif opc_m_c_l == 2:
 							
-							print("Ingrese la manzana")
-							opc_manz = val_range(1,M)
-							print("Ingrese el lote")
-							opc_lot = val_range(1,LM)
-								
-							print("""Manzana | lote | Mts_fondo | Mts_Frente | Agua | Luz | Asfalto | Esquina """)
+						elif opc_m_c_l == 1:
+							os.system('cls')
+							print("Ingrese el lote que busca")
+							Instance01 = ReadState("LOTES")
+							Instance01.ReadColumn("lot")
+							t.sleep(10)
 
-							for i in range(len(lot)):
-								if lot[i] == opc_lot and lot[i] == opc_lot:
+				elif int(opc_m_c) == 1:
+					ResetMenu()
+					os.system('cls')
+					while opc_m_c_p != 3:
+						os.system('cls')
+						table = [
+      						["Por Nombre(Apellido)"],
+      						["Por Manzana"],
+      						["Por Manzana y Lote "],
+      						["Volver"],]
+						print(tabulate.tabulate(table, headers=["Option", "Description"],numalign="center", tablefmt=fontStyle, showindex=True))
 
-									print("{}  {}  {}  {}  {}  {}  {}  {} ".format(opc_manz
-																			,lot[i]
-																			,m_fond[i]
-																			,m_fren[i]
-																			,agua_p[i]
-																			,luz_p[i]
-																			,asfalto[i]
-																			,esquina[i]))
+						opc_m_c_p = val_range(3,0)
 
-				elif opc_m_c == 2:
-
-					while opc_m_c_p != 4:
-						print("-"*60,"""Menu de consultas de propietario:
-					1_Por Nombre(Apellido)
-					2_Por Manzana
-					3_Por Manzana y Lote 
-					4_Volver""","-"*60,sep = "\n")
-
-						opc_m_c_p = val_range(1,3)
-
-						if opc_m_c_p == 1:
+						if int(opc_m_c_p) == 0:
+							os.system('cls')
 							print("Ingrese su appelido")
-							opc_ap = val_strlist(opc_ap)
-							print("Nombre | Lote | Fecha de compra | Superficie cubierta | Habitantes | Vehiculos | Consumo Luz | Consumo Agua | Consumo gas")
-							for i in range(len(ap)):
-								if ap[i] == opc_ap:
-									
-									print("{}  {}  {}  {}  {}  {}  {}  {}".format(opc_ap
-																				,lot_p
-																				,fc
-																				,supcubm2
-																				,habit
-																				,cantvehi
-																				,cons_luz
-																				,cons_agua
-																				,cons_gas))
-									print(ap, nom)
-									print("{}  {}  {}  {}  {}  {}  {}  {}".format(opc_ap+" "+nom[i]
-																				,lot_p[i]
-																				,fc[i]
-																				,supcubm2[i]
-																				,habit[i]
-																				,cantvehi[i]
-																				,cons_luz[i]
-																				,cons_agua[i]
-																				,cons_gas[i]))
+							opc_ap = string(opc_ap)
+							
+							Instance01 = ReadState("PROPIETARIOS")
+							Instance01.ReadColumn("nombre")
+							t.sleep(10)							
 
+						elif opc_m_c_p == 1:
+							os.system('cls')
+							print("Ingrese su manzana")							
+							Instance01 = ReadState("PROPIETARIOS")
+							Instance01.ReadColumn("man_p")
+							t.sleep(10)	
 
 						elif opc_m_c_p == 2:
+							os.system('cls')
 
-							print("Ingrese la Manzana")
-							opc_manz = val_range(1,M)
-
-							print("Lote | Fecha de compra | Superficie cubierta | Habitantes | Vehiculos | Consumo Luz | Consumo Agua | Consumo gas")
-
-							for i in range(len(ap)):
-								if manz_p[i] == opc_manz:
-									print("{}  {}  {}  {}  {}  {}  {}  {}".format(lot_p[i]
-																				,fc[i]
-																				,supcubm2[i]
-																				,habit[i]
-																				,cantvehi[i]
-																				,cons_luz[i]
-																				,cons_agua[i]
-																				,cons_gas[i]))
-						elif opc_m_c_p == 3:
-
-							print("Ingrese la manzana")
-							opc_manz = val_range(1,M)
-							print("Ingrese el lote")
-							opc_lot = val_range(1,LM)
-
-							print("Lote | Fecha de compra | Superficie cubierta | Habitantes | Vehiculos | Consumo Luz | Consumo Agua | Consumo gas")
-
-							for i in range(len(lot_p)):
-								if lot_p[i] == opc_lot and manz_p[i] == opc_manz:
-									print("{}  {}  {}  {}  {}  {}  {}  {}".format(lot_p[i]
-																				,fc[i]
-																				,supcubm2[i]
-																				,habit[i]
-																				,cantvehi[i]
-																				,cons_luz[i]
-																				,cons_agua[i]
-																				,cons_gas[i]))
-
+							
 				
 		#Act.tableros
-		elif opc_m == 4:
+		elif opc_m == 3:
+			os.system('cls')
 
-			print("""¿Quiere modificar algunos de los costos?
-				
-				Opciones:
-
-				1 ▶Luz de hogar		${}
-				2 ▶Agua de hogar	${}
-				3 ▶Gas				${}
-				4 ▶Cochera			${}
-				5 ▶Seguridad		${}
-				6 ▶Luz				${}
-				7 ▶Agua publica		${}
-				8 ▶Asfalto 			${}
-				9 ▶Valor x m2		${}\n"""
-								.format(luz_m
-								,Agua_m
-								,Gas_m
-								,Cochera_m
-								,Seg_cp
-								,Luz_cp
-								,Agua_cp
-								,Asf_cp
-								,Valorter_m
-								))
-
-			var_mod(val_range(1,9))
+			Instance01 = ChargeState("PRECIOS")
+			Instance01.InputData()
+			
 
 		#Se puede hacer un def
 		#Calculo de consumo 
-		elif opc_m == 5:
+		elif opc_m == 4:
+			os.system('cls')
 			
 			# Nota: Las listas son extensas podrian ser bidimencionales x manzana 
 			# Do/Hacer: Hacer contadores para cada consumo, 
@@ -843,20 +984,22 @@ while True:
 
 
 		#Emitir liquidacion
-		elif opc_m == 6:
-			
-
-
+		elif opc_m == 5:
+			os.system('cls')
+		
+			#♪(´▽｀) Agregar opcion 2 (Por Manzana y Lote)
 			if ban == True:
-				print("-"*60,"""Menu de liquidacion:
-					1_Por Nombre(Apellido)
-					2_Por Manzana
-					3_Por Manzana y Lote 
-					4_Volver""","-"*60,sep = "\n")
+				table = [
+      					["Por Nombre(Apellido)"],
+      					["Por Manzana"],
+      					["Por Manzana y Lote"],
+      					["Volver"],]
+				print(tabulate.tabulate(table, headers=["Option", "Description"],numalign="center", tablefmt=fontStyle, showindex=True))
+				
 				while True:
-					opc_liq = val_range(1,4)
+					opc_liq = val_range(3,0)
 
-					if opc_liq == 1:
+					if opc_liq == 0:
 						print("Ingrese su appelido")
 						opc_ap = val_strlist(opc_ap)
 						print("Nombre | Lote | Manzana | Fecha de compra | Superficie cubierta | Precio ")
@@ -871,7 +1014,7 @@ while True:
 																			,Valorter_mls[i]))
 								
 
-					elif opc_liq == 2:
+					elif opc_liq == 1:
 
 						print("Ingrese la Manzana")
 						opc_manz = val_range(1,M)
@@ -911,234 +1054,4 @@ while True:
 			
 	else:
 		print("Solo puede ingresar los valores dentro de menu del 0-6")
-
-# from tkinter import * 
-# from tkinter import messagebox
-
-# #Ventana Raiz 
-# a = Tk()
-
-# #Configuracion 
-                          
-# a.iconbitmap('logo.ico')
-# a.title("Barrio Privado")
-# a.geometry("400x500+500+100")
-# a.config(bg = "#349BA8")
-
-# # b =  " "
-# # w = Spinbox(a, from_=0, to=10000,textvariable= b)
-# # w.pack()			
-# # print(b)
-
-
-# #Defs
-# #Hacer boton de guardar datos
-
-# #Validar solo letras, si encuentra numeros lo elimina
-# # def Validar_num_true(cuadro):
-# # 	cuadraso_num=cuadro.get()
-# # 	for i in cuadraso:
-# # 		if i not in '0123456789':
-# # 		cuadraso.delete(cuadraso.index(i), cuadraso.index(i)+1)
-
-# # 	validate_entry = lambda text: text.isdecimal()
-
-# # #----------------------
-# # #Validar solo numeros, si encuentra una letra la elimina
-# # def Validar_letra_true():
-# # 	cuadraso_str=cuadro.get()
-# # 	for i in cuadraso_str:
-# # 		if i not in 'abcdefghijklmnñopqrstuvwxz.-_}[]{?¿¡!#$%&/()+*:;|°':
-# # 		cuadraso_str.delete(cuadraso_str.index(i), cuadraso_str.index(i)+1)
-
-# def button1():
-# 	a1 = Tk()
-
-# 	#1Configuracion
-# 	a1.iconbitmap('logo.ico')
-# 	a1.title("Barrio Privado ")
-# 	a1.geometry("400x500+0+0")
-# 	a1.config(bg= "#246C75")
-# 	l1 = Label(a1, text = "Ingreso de datos" , bg ="#67A1A8").pack(pady = 15)
-# 	b = Button(a1,text = "Salir", bg ="#67A1A8", command = lambda:exit(a1) ).pack(side = "bottom", pady = 10)	
-# 	e1 = Entry(a1, bg = "#349BA8",  )
-# 	e1.insert(0,"Manzana")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Lote")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8",)
-# 	e1.insert(0,"Metros de frente")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Metros de fondo")
-
-# 	e1.pack(pady  = 10)
-	
-# 	#Hacer booleanas
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Luz publica")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Agua publica")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Asfalto")
-
-# 	e1.pack(pady  = 10)
-# 	e1 = Entry(a1, bg = "#349BA8", )
-# 	e1.insert(0,"Esquina")
-
-# 	e1.pack(pady  = 10)
-
-# #Hacer boton de guardar datos
-# def button2():
-# 	a2 = Tk()
-
-# 	#Configuracion
-# 	a2.iconbitmap('logo.ico')
-# 	a2.title("Barrio Privado ")
-# 	a2.geometry("400x500+950+0")
-# 	a2.config(bg= "#246C75")
-# 	b = Button(a2,text = "Salir", bg ="#67A1A8", command = lambda:exit(a2) ).pack(side = "bottom", pady = 10)	
-# 	l1 = Label(a2, text = "Ingreso de datos" , bg ="#67A1A8").pack(pady = 15)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Nombre")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Apellido")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Lote")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Manzana")
-# 	e2.pack(pady  = 10)
-# 	#Hacerlo bien ⬇
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Fecha de compra")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Habitantes")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Vehiculos")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Consumo de luz")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Consumo de Agua")
-# 	e2.pack(pady  = 10)
-# 	e2 = Entry(a2, bg = "#349BA8")
-# 	e2.insert(0,"Consumo de Gas")
-# 	e2.pack(pady  = 10)
-
-# def button3():
-# 	messagebox.showinfo(title= "Barrio Privado", message = "Datos Calculados")
-
-# def button4():
-# 	a4 = Tk()
-
-# 	#Configuracion
-# 	a4.iconbitmap('logo.ico')
-# 	a4.title("Barrio Privado ")
-# 	a4.geometry("400x350+800+200")
-# 	a4.config(bg= "#246C75")
-# 	l4 = Label(a4, text = " Tabla de consumo ", bg = "#67A1A8", font = "Unispace").pack(fill = "x")
-
-# 	l4 = Label(a4, text = "  Propietario ", bg = "#349BA8").pack(fill = "x", pady = 10 )
-# 	b = Button(a4, text = " Nombre ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a4, text = " Manzana ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a4, text = " Manzana y lote ", bg = "#67A1A8").pack(pady = 5, ipadx = 35)
-# 	l4 = Label(a4, text = " Lote ", bg = "#349BA8").pack(fill = "x", pady = 10 )
-# 	b = Button(a4, text = " Manzana ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a4, text = " Manzana y lote ", bg = "#67A1A8").pack(pady = 5, ipadx = 35)
-# 	b = Button(a4,text = "Salir", bg ="#67A1A8", command = lambda:exit(a4) ).pack(side = "bottom", pady = 10)	
-
-# def button5():
-# 	a5 = Tk()
-
-# 	#Configuracion
-# 	a5.iconbitmap('logo.ico')
-# 	a5.title("Barrio Privado ")
-# 	a5.geometry("400x350+200+200")
-# 	a5.config(bg= "#246C75")
-# 	l5 = Label(a5, text = " Consultas ", bg = "#67A1A8").pack(fill = "x" )
-
-# 	l4 = Label(a5, text = "  Propietario ", bg = "#349BA8").pack(fill = "x", pady = 10 )
-# 	b = Button(a5, text = " Nombre ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a5, text = " Manzana ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a5, text = " Manzana y lote ", bg = "#67A1A8").pack(pady = 5, ipadx = 35)
-# 	l4 = Label(a5, text = " Lote ", bg = "#349BA8").pack(fill = "x", pady = 10 )
-# 	b = Button(a5, text = " Manzana ", bg = "#67A1A8").pack(pady = 5, ipadx = 50)
-# 	b = Button(a5, text = " Manzana y lote ", bg = "#67A1A8").pack(pady = 5, ipadx = 35)
-# 	b = Button(a5,text = "Salir", bg ="#67A1A8", command = lambda:exit(a5) ).pack(side = "bottom", pady = 10)	
-# def button6():
-# 	a6 = Tk()
-
-# 	#Configuracion
-# 	a6.iconbitmap('logo.ico')
-# 	a6.title("")
-# 	a6.geometry("400x450+500+500")
-# 	a6.config(bg= "#246C75")
-# 	b = Button(a6,text = "Salir", bg ="#67A1A8", command = lambda:exit(a6) ).pack(side = "bottom", pady = 10)
-# 	lab = Label(a6, text = "Liquidacion " , bg = "#38585C", font = " Unispace" , pady = 10 , fg  = "White" )
-# 	lab.pack(fill = X)
-# 	#Entry o label ??!?
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, "Manzana")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, "Lote")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, "Propietario")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, "Ultima fecha de compra")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, "Precio del terreno")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8")
-# 	et.insert(0, " Metros cubiertos")
-# 	et.pack(pady = 5)
-# 	et = Entry(a6,bg = "#349BA8",justify = "center")
-# 	et.insert(0, " 🔽Reseña del propietario🔽 ")
-# 	et.config(state = "disable")
-# 	et.pack(fill = "x", pady = 10)
-# 	etT = Text(a6,bg = "#349BA8",height=7,width=40)
-# 	etT.pack()
-# def exit(a):
-# 	a.destroy()
-
-# #Labels
-
-# l = Label(a,text = "Menu principal",justify = "center",bg= "#38585C",font = "Unispace", fg = "white").pack(fill = "x",ipady =10)
-# l2 = Label(a, text = "Altas ",bg = "#246C75" ).pack(fill = "x", pady = 5)
-# l3 = Label(a, text = "Consumo ",bg = "#246C75" )
-# l4 = Label(a, text = "Liquidacion ",bg = "#246C75" )
-# l5 = Label(a, text = "			 ",bg = "#246C75" )
-
-# #Butons
-
-# b = Button(a,text = "Alta de lotes", bg ="#67A1A8", command = button1).pack(pady =5, ipadx = 51)
-# b = Button(a,text = "Alta de propietarios", bg ="#67A1A8", command = button2).pack(pady =5, ipadx = 32)
-# l3.pack(fill = "x", pady = 15)
-# b = Button(a,text = "Calculo de consumo", bg ="#67A1A8", command = button3).pack(pady =5, ipadx = 29)
-# b = Button(a,text = "Tabla de consumo", bg ="#67A1A8", command = button4).pack(pady =5, ipadx = 35)
-# b = Button(a,text = "Consultas", bg ="#67A1A8", command = button5).pack(pady =5, ipadx = 57)
-# l4.pack(fill = "x", pady = 15)
-# b = Button(a,text = "Liquidacion", bg ="#67A1A8", command = button6).pack(pady =5, ipadx = 22)
-# l5.pack(fill = "x", pady = 15)
-# b = Button(a,text = "Salir", bg ="#67A1A8", command = lambda:exit(a) ).pack()
-
-# a.mainloop()
-
 
