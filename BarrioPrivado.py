@@ -73,6 +73,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS PROPIETARIOS(ID INTEGER PRIMARY KEY AUTO
 		                                             cons_gas NUMBER(5) NULL)""")
 
 c.execute("""CREATE TABLE IF NOT EXISTS PRECIOS(ID INTEGER PRIMARY KEY AUTOINCREMENT,
+		  		  							 	ActFech Date NOT NULL,
 		                                        luz_m NUMBER(5) NOT NULL,
 		                                        agua_m NUMBER(5) NOT NULL,
 		                                        gas_m NUMBER(5) NOT NULL,
@@ -109,7 +110,8 @@ PROPIETARIOS = {"apellido": "Text",
     "cons_agua": "Number",
     "cons_gas": "Number",}
 
-PRECIOS = {"luz_m": "Number",
+PRECIOS = {"ActFech":"Date",
+	"luz_m": "Number",
     "agua_m": "Number",
     "gas_m": "Number",
     "cochera_m": "Number",
@@ -123,41 +125,6 @@ DictDiccitionaries = {"LOTES":LOTES,
                        "PROPIETARIOS":PROPIETARIOS,
                        "PRECIOS":PRECIOS}
 
-
-# #Variables auxiliares
-
-# x = " "
-# y = " "
-
-# #----------------------
-
-# M = 4
-# LM = 6
-
-# #Variables del Lote
-
-# lot =  [] 
-# manz = []
-# m_fren = []
-# m_fond=  []
-# luz_p=     []
-# agua_p =   []
-# asfalto =  []
-# esquina =  []
-
-# #Variables del propietario 
-
-# ap = []
-# nom = []
-# lot_p = []
-# manz_p = []
-# fc = []
-# supcubm2 = []
-# habit = []
-# cantvehi = []
-# cons_luz = []
-# cons_agua = []
-# cons_gas = []
 
 # #Variables para el menu 
 
@@ -173,37 +140,13 @@ def ResetMenu():
 	opc_m_c_p = 0 # Opciones Consulta del propietario 
 	opc_m_c_l = 0 # Opciones Consultas del local 
 	opc_liq = 0 #Opciones de liquidacion
-#Variables de precios
+
 
 # #Common pay(Cost) as cp
 # #Pay(Cost) as m
 
-# luz_m = 60
-# luz_mls = []
-# Agua_m = 30
-# Agua_mls = []
-# Gas_m = 45
-# Gas_mls = []
-# Cochera_m = 10000
-# Cochera_mls = []
-
-# #Common Pay
-# Seg_cp = 30000
-# Seg_cpls = []
-
-# Luz_cp = 80000
-# Luz_cpls = []
-
-# #X metro de frente 
-# Agua_cp = 40 
-# Agua_cpls = []
 # Asf_cp = 70 
 # Asf_cpls = []
-
-# #X metro cuadrado
-# metros2 = []
-# Valorter_m = 60000
-# Valorter_mls = []
 
 def val_range(maxim,minin):
     while True:
@@ -284,28 +227,16 @@ def ValidacionFecha():
 
 def numeric(Numeric_string,Long_of_String,Max_number):
     c = 0
-    #El while true se encarga de forzar un valor apto para el codigo
     while True:
-
-        #Esto mantiene la solides del codigo verifica que Numeric_string sea tipo int para que isdigit acepte la condicion
         if Numeric_string.isdigit() and len(Numeric_string) <= 3 and int(Numeric_string) >= 0 and int(Numeric_string) <= int(Max_number):
-            print(Numeric_string.isdigit())
-            return Numeric_string #El return frena el while True
+            return Numeric_string 
         else:
             if c == 0:
                 Numeric_string = input("Ingrese una opcion valida > ")
-
-            if c == 1 and len(Numeric_string) >= 2:
-                Numeric_string = input("Ingrese una opcion valida de {} cifras > ".format(Long_of_String))
-
             if c == 1:
                 Numeric_string = input("Ingrese una opcion valida  entre {} y {} > ".format(1,Max_number))
-
             if c > 3:
                 Numeric_string = input("Ingrese una opcion valida de {} cifras entre {} y {} > ".format(Long_of_String,1,Max_number))
-
-
-        #Manera de ayudar al usuario , mientras mas se equivoca mas va a ayudarlo para poder cargar los datos necesarios
         c += 1
 
 
@@ -341,102 +272,6 @@ def val_range(maxim,minin):
 	# print(a)
 	# ranker(a,0,20)
 
-def srtval(x):
-	
-	while True :
-		print(x)
-		x = input(" ▶ ")
-
-		if x.isdigit() == False:
-			for i in range(len(x)):
-				if x[i].isdigit() == True:
-
-					x=x[:i]+" "+x[i+1:]
-					print(x) 
-
-
-			return x
-			break
-			
-		else:
-
-			print("No se pueden ingresar numeros")
-
-		print(x)	
-
-def val_strlist(x):
-	
-	while True:
-		
-		x = input(" ▶ ")
-
-		if x.lower() in ap:
-			return x
-			 
-		else:
-			print("El apellido que ingreso no esta cargado\n Los nombres cargados son: \n ", ap, "\n Reingrese el apellido")
-			
-
-def sn(z):
-	
-	while True:
-		z = str(input( """Opciones:
-			-Si
-			-No 
-			▶ """ ))
-		
-		if z.upper() == "SI" or z.upper() == "NO" or z.upper() == "S" or z.upper() == "N":
-			zup = z.upper()
-			return zup[:1]
-			break 
-		else:
-			print("Ingrese por respuesta un si o no")
-
-def nrep(var):
-
-	for i in range(len(var)-1):
-		if var[i] == var[-1]:
-			print("El valor ",var[-1], ",ya fue cargado")
-			var.pop(-1)
-			var.append(numval(var))
-			print(var)
-			nrep(var)
-
-	# a = [2,4,5,6,7,8,2]
-
-	# nrep(a)
-
-def nrep2(var,var2):
-
-	print(var)
-	print(var2)
-	for i in range(len(var)-1):
-		if var[i] == var[-1] and var2[i] == var2[-1]:
-			var.pop(-1)
-			var2.pop(-1)
-			print("Ya fue cargado, en el indice, " ,i)
-			var.append(input(numval(var)))
-			var2.append(input(numval(var2)))
-	return var, var2
-
-	# a = [1,1,12,2,3,4,3]
-	# b = [2,2,3,42,3,5,3]
-
-
-	# nrep2(a,b)
-	
-def nrep2_lotxprop(var,var2,var_p,var2_p):
-
-	print(var)
-	print(var2)
-	for i in range(len(var)-1):
-		if var_p[i] == var[-1] and var2_p[i] == var2[-1]:
-			var.pop(-1)
-			var2.pop(-1)
-			print("Ya fue cargado, en el indice, " ,i)
-			var.append(input(numval(var)))
-			var2.append(input(numval(var2)))
-	return var, var2
 
 def fdecompra():
 	
@@ -482,128 +317,20 @@ def fdecompra():
 	print(fecha)
 	return fecha
 
-def randomer_fc(c):
 
-	for i in range(c):
-		
-		fechaY = random.randint(1900,2022)
-		fechaM = random.randint(1,12)		
-		fechaD = random.randint(1,31)
-
-		fecha = str(fechaY) + "-" + str(fechaM) + "-" + str(fechaD)
-		
-		fc.append(fecha)
-	
-def randomer_nomap(c):
-	
-	for i in range(c):
-		apes  = ["lopez","martinez" ,"abalos" , "ramos", "faustino"]
-		nomes = ["Valentina","juan"  ,"Mariano" ,"Lucas" ,"Tadeo" ]
-		
-		ind_a= random.randint(1,len(apes)-1)
-		ind_n= random.randint(1,len(nomes)-1)
-		
-		ap.append(apes[ind_a])
-		nom.append(nomes[ind_n])
-
-def randomer(principal,a,b,c):
-	
-	for i in range(c):
-		x = random.randint(a,b)
-		principal.append(x)
-
-
-def randomer_bol(principal,c):
-
-	for i in range(c):
-		x = random.randint(1,2)
-		
-		if x == 1:
-			principal.append("S")
-		else:
-			principal.append("N")
-		
-
-# def reingresar_prop(y):
-
-# 	# La funcion le pregunta al usuario,
-# 	# si esta seguro de lo que ingreso.
-
-# 	print("Esta seguro de lo que ingreso?")
-# 	tmp = sn(x)
-# 	if tmp == "NO" or tmp == "N":
-# 		#Advertencia 
-# 		print("""Atencion si no esta seguro de los ingresos,
-# 		 se borraran todos los datos recien ingresado. 
-# 		 Los tendra que ingresar todo de nuevo. 
-
-# 		 ¿Quiere continuar?""") 
-# 		tmp_2 = sn(x)
-# 		if tmp_2 == "SI" or tmp_2 == "S":
-# 			apnom.pop(-1) 
-# 			lot_p.pop(-1) 
-# 			manz_p.pop(-1) 
-# 			fc.pop(-1) 
-# 			supcubm2.pop(-1) 
-# 			habit.pop(-1) 
-# 			cantvehi.pop(-1) 
-# 			cons_luz.pop(-1) 
-# 			cons_agua.pop(-1) 
-# 			cons_gas.pop(-1) 
-# 			print("[+] Ultimos datos eliminados\n")
-
-def var_mod(x):
-
-	if x == 1:
-		print("Ingrese el valor $$")
-		luz_m = int(input()[0:])
-
-	elif x == 2:
-		print("Ingrese el valor $$")
-		Agua_m = int(input()[0:])
-
-
-	elif x == 3:
-		print("Ingrese el valor $$")
-		Gas_m = int(input()[0:])
-
-	elif x == 4:
-		print("Ingrese el valor $$")
-		Cochera_m = int(input()[0:])
-
-	elif x == 5:
-		print("Ingrese el valor $$")
-		Seg_cp = int(input()[0:])
-
-	elif x == 6:
-		print("Ingrese el valor $$")
-		Luz_cp = int(input()[0:])
-				
-	elif x == 7:
-		print("Ingrese el valor $$")
-		Agua_cp = int(input()[0:])
-				
-	elif x == 8:
-		print("Ingrese el valor $$")
-		Asf_cp = int(input()[0:])
-				
-	elif x == 9:
-		print("Ingrese el valor $$")
-		Valorter_m = int(input()[0:])
-				
-	#Modificador de variables
-#La maquina crea datos de propietarios al azar 
-
+			
 #_____________________________________________________________________CLASES_____________________________________________________________________
 #_____________________________________________________________________CLASES_____________________________________________________________________
 #_____________________________________________________________________CLASES_____________________________________________________________________
+rows_out = ()
+
 class ReadState():
 
     def __init__(self,table):
         self.table = table
 
     def ReadAll(self):
-        c = conector.cursor()
+        c = conn.cursor()
         c.execute("SELECT * FROM " + self.table + "")
         rows = c.fetchall()
 
@@ -619,6 +346,7 @@ class ReadState():
         print(tabu)
 
     def ReadColumn(self,camp):
+        
         self.camp = camp 
         c = conn.cursor()
         c.execute("SELECT * FROM " + self.table + "")
@@ -638,10 +366,39 @@ class ReadState():
         #Arreglar Error del fetchall()
         c = conn.cursor()
         c.execute("SELECT * FROM " + self.table + " WHERE "+ self.camp +" = '"+ IdOption +"'")
-        rows = c.fetchall()
+        rows_out = c.fetchall()
         tabu = tabulate.tabulate(rows,headers=TemplateVerification.keys(),tablefmt=fontStyle,numalign="center",stralign="center")
         print(tabu)
+        return rows_out
 
+
+    def ReadColumn2(self,camp,camp2):
+        
+        self.camp = camp 
+        self.camp2 = camp2
+        c = conn.cursor()
+        c.execute("SELECT * FROM " + self.table + "")
+        rows = c.fetchall()
+
+        #Coincidencias en el diccionario para poder identicar los valores
+        TemplateVerification = {}
+
+        for i in DictDiccitionaries:
+            if i == self.table:
+                TemplateVerification = DictDiccitionaries[i]
+
+        print(len(rows))
+
+        IdOption = str(input("{} al que pertenece ▶️ : ".format(self.camp)))
+        IdOption2 = str(input("{} al que pertenece ▶️ : ".format(self.camp2)))
+
+        #Arreglar Error del fetchall()
+        c = conn.cursor()
+        c.execute("SELECT * FROM " + self.table + " WHERE "+ self.camp +" = '"+ IdOption +"' AND "+ self.camp2 +" = '"+ IdOption2 +"'")
+        rows_out = c.fetchall()
+        tabu = tabulate.tabulate(rows,headers=TemplateVerification.keys(),tablefmt=fontStyle,numalign="center",stralign="center")
+        print(tabu)
+        return rows_out
 
 class ChargeState():
     def __init__(self,table):
@@ -767,13 +524,13 @@ while True:
 	ResetMenu()
 	os.system('cls')
 	table = [
-      ["Altas de lotes","Funcionando 100%"],
-      ["Altas de propietarios","Funcionando 100%"],
-      ["Consultas","Funcionando 50%"],
-      ["Act.tabla de consumos","Funcionando 100%"],
-      ["Calculo de consumo","Funcionando 0%"],
-      ["Emitir liquidacion","Funcionando 0%"],
-      ["Fin de tarea","Funcionando 100%"],]
+      ["Altas de lotes"],
+      ["Altas de propietarios"],
+      ["Consultas"],
+      ["Act.tabla de consumos"],
+      ["Calculo de consumo"],
+      ["Emitir liquidacion"],
+      ["Fin de tarea"],]
 	print(tabulate.tabulate(table, headers=["Option", "Description","Estado.developInfo"],numalign="center", tablefmt=fontStyle, showindex=True))
 
 	opc_m = numval(opc_m)
@@ -824,7 +581,7 @@ while True:
 						os.system('cls')
 						table = [
       						["Por Manzana"],
-      						["Por Propietario"],
+      						["Por Lote"],
       						["Volver"],]
 						print(tabulate.tabulate(table, headers=["Option", "Description"],numalign="center", tablefmt=fontStyle, showindex=True))
 
@@ -878,6 +635,10 @@ while True:
 
 						elif opc_m_c_p == 2:
 							os.system('cls')
+							Instance01 = ReadState("PROPIETARIOS")
+							Instance01.ReadColumn2("man_p","lot_p")
+							t.sleep(10)	
+							os.system('cls')
 
 							
 				
@@ -894,46 +655,49 @@ while True:
 		elif opc_m == 4:
 			os.system('cls')
 			
-			# Nota: Las listas son extensas podrian ser bidimencionales x manzana 
-			# Do/Hacer: Hacer contadores para cada consumo, 
-			# depende de si esta habitada y en que consuma y no 
+			print("Ingrese ...")
+			Instance01 = ReadState("PRECIOS")
+			Precios = Instance01.ReadAll()
 
-			#Seguridad
-			for i in range(len(supcubm2)):
-				if supcubm2[i] > 0:
-					Seg_cpls.append((Seg_cp/(M*LM))*2)
+			print(Precios)
+			t.sleep(10)
 
-				else:
-					Seg_cpls.append(Seg_cp/(M*LM))
-			#Los prints verifican el correcto funcionamiento
-			print("Seguridad",Seg_cpls)
+			# #Seguridad
+			# for i in range(len(supcubm2)):
+			# 	if supcubm2[i] > 0:
+			# 		Seg_cpls.append((Seg_cp/(M*LM))*2)
+
+			# 	else:
+			# 		Seg_cpls.append(Seg_cp/(M*LM))
+			# #Los prints verifican el correcto funcionamiento
+			# print("Seguridad",Seg_cpls)
 			#Luz 
-			for i in range(len(cons_luz)):
-				luz_mls.append(luz_m * cons_luz[i])
+			# for i in range(len(cons_luz)):
+			# 	luz_mls.append(luz_m * cons_luz[i])
 
-			print("Luz",luz_mls)
-			#Agua
-			for i in range(len(cons_agua)):
-				Agua_mls.append(Agua_m * cons_agua[i])
-			print("Consumode agua",Agua_mls) 
-			#Gas
-			for i in range(len(cons_gas)):
-				Gas_mls.append(Gas_m * cons_gas[i]) 
-			print("Consumode gas",Gas_mls) 
+			# print("Luz",luz_mls)
+			# #Agua
+			# for i in range(len(cons_agua)):
+			# 	Agua_mls.append(Agua_m * cons_agua[i])
+			# print("Consumode agua",Agua_mls) 
+			# #Gas
+			# for i in range(len(cons_gas)):
+			# 	Gas_mls.append(Gas_m * cons_gas[i]) 
+			# print("Consumode gas",Gas_mls) 
 			
-			#Luz publica
-			cont_luz_p = 0
-			for i in range(len(luz_p)):
+			# #Luz publica
+			# cont_luz_p = 0
+			# for i in range(len(luz_p)):
 				
-				if luz_p[i] == 'S':
+			# 	if luz_p[i] == 'S':
 			 
-					cont_luz_p += 1 
-			for i in range(len(luz_p)):
-					if luz_p[i] == "S":
-						Luz_cpls.append(Luz_cp / cont_luz_p)
-					else:
-						Luz_cpls.append(0)
-			print("Luz publica",Luz_cpls)
+			# 		cont_luz_p += 1 
+			# for i in range(len(luz_p)):
+			# 		if luz_p[i] == "S":
+			# 			Luz_cpls.append(Luz_cp / cont_luz_p)
+			# 		else:
+			# 			Luz_cpls.append(0)
+			# print("Luz publica",Luz_cpls)
 			#con contador s o n 
 
 			#Corregir
